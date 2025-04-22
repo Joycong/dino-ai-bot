@@ -1,0 +1,7 @@
+train: C:/Users/kovin/DinoProject/images  # 훈련용 이미지 경로
+val: C:/Users/kovin/DinoProject/val_images
+
+nc: 2  # 클래스 수 (예: 공룡, 장애물)
+names:
+  0: 'dinosaur'  # 클래스 0: 공룡
+  1: 'obstacle'  # 클래스 1: 장애물

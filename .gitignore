@@ -1,0 +1,71 @@
+# =============================
+# ▶ Python cache & temp files
+# =============================
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.pkl
+*.h5
+*.ckpt
+*.log
+*.tmp
+*.npy
+*.npz
+
+# =============================
+# ▶ IDE/Editor settings
+# =============================
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# =============================
+# ▶ System files
+# =============================
+.DS_Store
+Thumbs.db
+
+# =============================
+# ▶ Environment / Package
+# =============================
+.venv/
+.env
+.env.*
+
+# =============================
+# ▶ YOLOv5 training outputs
+# =============================
+yolov5/runs/
+yolov5/__pycache__/
+yolov5/.mypy_cache/
+yolov5/.pytest_cache/
+
+# =============================
+# ▶ Custom folders to exclude
+# =============================
+logs/
+memory/
+models/
+
+# =============================
+# ▶ Jupyter Notebooks
+# =============================
+.ipynb_checkpoints/
+
+# =============================
+# ▶ Backup / temporary
+# =============================
+*.bak
+*.swp
+*.~*
+
+# =============================
+# ▶ DQN 학습 산출물
+# =============================
+*.pth
+*.pkl
+*.h5
+
