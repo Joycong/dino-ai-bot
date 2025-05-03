@@ -32,8 +32,6 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
 ---
 
----
-
 ## 📘 프로젝트 설명
 
 ### 🧠 학습 목표
@@ -139,6 +137,7 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 2. **ChromeDriver 설치**
    - 버전에 맞는 [ChromeDriver 다운로드](https://chromedriver.chromium.org/downloads)
    - `dino_env/chromedriver-win64/`에 `chromedriver.exe` 위치
+> 폴더가 없다면 수동으로 만들어주세요.
 
 ---
 
