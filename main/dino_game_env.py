@@ -21,7 +21,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 class DinoGameEnv:
     def __init__(self):
         # ▶ Chrome 드라이버 경로 설정 (상대 경로 사용)
-        chrome_driver_path = os.path.join(project_root, "../dino_env/chromedriver-win64/chromedriver.exe")
+        chrome_driver_path = os.path.join(project_root, "../yolo_training/chromedriver-win64/chromedriver.exe")
 
         # ▶ 크롬 실행 파일 경로 (시스템에 따라 변경 필요)
         chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
@@ -45,7 +45,7 @@ class DinoGameEnv:
         self.game_over_threshold = 0.295
 
         # ▶ YOLOv5 모델 로드 (장애물, 공룡 인식)
-        self.model_path = os.path.join(project_root, "../yolov5/runs/train/exp4/weights/best.pt")
+        self.model_path = os.path.join(project_root, "../yolo_training/yolov5/runs/train/exp4/weights/best.pt")
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=self.model_path)
 
         # ▶ 라벨 인덱스 (학습 시 설정한 값에 맞춰야 함)

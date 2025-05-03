@@ -49,12 +49,22 @@ print("Game started with initial jump.")
 
 # 게임 화면 캡처 및 저장 함수
 def capture_screen(timestamp):
-    screenshot = pyautogui.screenshot(region=(0, 400, 800, 200))  # 게임 화면 캡처
+    # 저장 폴더 지정
+    save_dir = "add_images"
+    os.makedirs(save_dir, exist_ok=True)  # 폴더 없으면 자동 생성
+
+    # 게임 화면 캡처
+    screenshot = pyautogui.screenshot(region=(0, 400, 800, 200))
     screenshot_np = np.array(screenshot)
     screenshot_rgb = cv2.cvtColor(screenshot_np, cv2.COLOR_RGB2BGR)  # RGB -> BGR 변환
+
+    # 저장 경로 지정
     filename = f"game_screen_{timestamp}.png"
-    cv2.imwrite(filename, screenshot_rgb)  # 이미지 저장
-    print(f"Captured {filename}")
+    save_path = os.path.join(save_dir, filename)
+
+    # 이미지 저장
+    cv2.imwrite(save_path, screenshot_rgb)
+    print(f"Captured {save_path}")
 
 # 10초 대기 후 캡처 시작
 time.sleep(10)
