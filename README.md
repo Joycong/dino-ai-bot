@@ -158,11 +158,14 @@ C:/Program Files/Google/Chrome/Application/chrome.exe
 
 필수 패키지 설치:
 
+    cd dino-ai-bot
+    
     pip install -r requirements.txt
 
 YOLOv5 설치:
 
-    cd/yolo_training
+    cd yolo_training
+    
     git clone https://github.com/ultralytics/yolov5
     pip install -r yolov5/requirements.txt
 
@@ -177,10 +180,46 @@ YOLOv5 설치:
 
     python yolo_training/game_screen_capture_and_preprocessing.py
 
-> 'game_screen_capture_and_preprocessing.py' 실행 시, 크롬 공룡 게임을 자동으로 캡처합니다.
+> 'game_screen_capture_and_preprocessing.py' 실행 시, 크롬 공룡 게임을 240초 동안 1초마다 캡처합니다. 게임을 직접 플레이하여 데이터 수집할 수 있습니다.
 > 수집한 이미지는 라벨링 도구를 이용해 공룡과 장애물을 직접 라벨링한 후 학습에 사용할 수 있습니다.
 
-2.  공룡과 장애물 학습
+2. data.yaml 파일 만들기
+YOLOv5로 공룡과 장애물을 학습하려면, 학습 이미지와 라벨 파일의 경로 및 클래스 정보를 담은 data.yaml 파일이 필요합니다.
+yolo_training/ 디렉토리에 data.yaml 파일을 만들고 아래처럼 작성하세요:
+
+```
+train: images                                    # 훈련용 이미지 경로
+val: val_images                                  # 검증용 이미지 경로
+
+nc: 2                                            # 클래스 수
+names:
+  0: 'dinosaur'                                  # 클래스 0: 공룡
+  1: 'obstacle'                                  # 클래스 1: 장애물
+```
++ train, val: 학습/검증 이미지 경로
++ nc: 클래스 개수
++ names: 인식할 객체의 이름 리스트
+
+>
+
+📌 필수 폴더 구조
+
+이미지와 라벨(.txt)은 다음과 같이 구성되어 있어야 합니다:
+
+```
+dino-ai-bot/
+├── yolo_training/
+│   ├── images/            # 학습 이미지
+│   ├── val_images/        # 검증 이미지
+│   ├── labels/            # 학습 이미지 라벨 (.txt)
+│   ├── val_labels/        # 검증 이미지 라벨 (.txt)
+│   └── data.yaml          # 데이터 설정 파일
+```
+> ⚠️ images, val_images 폴더에는 학습용/검증용 이미지가,
+> labels, val_labels 폴더에는 YOLO 형식의 라벨 파일이 위치해야 합니다.
+> 라벨 파일 이름은 이미지와 동일하고 확장자만 .txt여야 합니다.
+
+3.  공룡과 장애물 학습
     YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
 
         cd yolov5
