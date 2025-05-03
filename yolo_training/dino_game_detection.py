@@ -1,3 +1,4 @@
+import os
 import time
 import cv2
 import torch
@@ -6,25 +7,25 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import numpy as np
 import pyautogui
-
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+# 상대경로 기반 경로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "yolov5", "runs", "train", "exp4", "weights", "best.pt")
+chrome_driver_path = os.path.join(BASE_DIR, "chromedriver-win64", "chromedriver.exe")
+chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe" #크롬 브라우저 경로
 
 # YOLOv5 모델 로드
-model_path = 'C:/Users/user/DinoProject/dino_env/yolov5/runs/train/exp4/weights/best.pt'
 model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
 
-# ChromeDriver 경로와 설정
-chrome_driver_path = "dino_env/chromedriver-win64/chromedriver.exe"
-chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+# 크롬 설정
 options = Options()
 options.add_argument("--mute-audio")
 options.binary_location = chrome_path
-
-# ChromeDriver로 크롬 실행
 service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service, options=options)
+
 
 # Dino 게임 열기
 print("Opening game page...")

@@ -115,16 +115,15 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
     dino-ai-bot/
     ├── main/                  # 강화학습 및 실행 코드
-    ├── yolo_training/         # YOLO 학습 관련 코드 및 데이터
+    ├── yolo_training/         # YOLO 객체 학습 관련 코드 및 데이터
     │   ├── images/            # 학습 이미지
     │   ├── labels/            # YOLO 라벨
     │   ├── best.pt            # 학습된 모델
     │   ├── data.yaml          # YOLO 학습 설정
+    │   └── ...
     ├── data/
     │   └── game_over_image.png
     ├── docs/                  # 시연 이미지
-    ├── dino_env/
-    │   └── chromedriver-win64/  # (사용자 직접 설치)
     ├── requirements.txt
     └── README.md
 
@@ -134,10 +133,19 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
 1. **Chrome 설치**
    - [크롬 설치 링크](https://www.google.com/chrome/)
+
+💡 참고: 본 프로젝트는 크롬 브라우저가 아래 경로에 설치되어 있다고 가정합니다:
+
+```swift
+C:/Program Files/Google/Chrome/Application/chrome.exe
+```
+
+만약 사용자의 시스템에서 크롬이 다른 위치에 설치되어 있다면, 코드에서 chrome_path 값을 수정해야 합니다.
+
 2. **ChromeDriver 설치**
    - 버전에 맞는 [ChromeDriver 다운로드](https://chromedriver.chromium.org/downloads)
-   - `dino_env/chromedriver-win64/`에 `chromedriver.exe` 위치
-> 폴더가 없다면 수동으로 만들어주세요.
+   - `yolo_training/chromedriver-win64/`에 `chromedriver.exe` 위치
+     > 폴더가 없다면 수동으로 만들어주세요.
 
 ---
 
@@ -146,14 +154,15 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 가상환경 생성 (선택):
 
     python -m venv dino_env
-    source dino_env/bin/activate  # or dino_env\Scripts\activate
+    dino_env\Scripts\activate  # or source dino_env/bin/activate
 
 필수 패키지 설치:
 
     pip install -r requirements.txt
 
-YOLOv5 설치 (최초 1회):
+YOLOv5 설치:
 
+    cd/yolo_training
     git clone https://github.com/ultralytics/yolov5
     pip install -r yolov5/requirements.txt
 
@@ -163,17 +172,24 @@ YOLOv5 설치 (최초 1회):
 
 ### 1️⃣ YOLO 학습 (선택사항)
 
-YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
+1.  게임 화면 캡처
+    YOLO 학습용 이미지 데이터를 수집하려면 아래 명령어를 실행하세요:
 
-    cd yolov5
-    python train.py --img 640 --batch 16 --epochs 50 --data ../yolo_training/data.yaml --weights yolov5s.pt --project runs/train --name exp --cache
+    python yolo_training/game_screen_capture_and_preprocessing.py
+
+> 'game_screen_capture_and_preprocessing.py' 실행 시, 크롬 공룡 게임을 자동으로 캡처합니다.
+> 수집한 이미지는 라벨링 도구를 이용해 공룡과 장애물을 직접 라벨링한 후 학습에 사용할 수 있습니다.
+
+2.  공룡과 장애물 학습
+    YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
+
+        cd yolov5
+        python train.py --img 640 --batch 16 --epochs 50 --data ../yolo_training/data.yaml --weights yolov5s.pt --project runs/train --name exp --cache
 
 > ⚠️ 주의: 위 명령어로 학습을 수행해야 `yolov5/runs/train/exp4/weights/best.pt` 경로가 생성됩니다.  
 > 만약 학습을 생략하고 결과만 확인하고 싶다면, **제공된 `best.pt` 파일을 수동으로 아래 경로에 넣어주세요**:
 
     yolov5/runs/train/exp4/weights/best.pt
-
-> 폴더가 없다면 수동으로 만들어주세요.
 
 ---
 

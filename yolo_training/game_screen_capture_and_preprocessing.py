@@ -1,3 +1,4 @@
+import os
 import pyautogui
 import time
 import cv2
@@ -6,18 +7,18 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-# ChromeDriver 경로 설정
-chrome_driver_path = "dino_env/chromedriver-win64/chromedriver.exe"  # ChromeDriver 경로
-chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"  # chrome.exe 경로
+# 상대경로 기반 경로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+chrome_driver_path = os.path.join(BASE_DIR, "chromedriver-win64", "chromedriver.exe")
+chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe" #크롬 브라우저 경로
 
-# Chrome 옵션 설정
 options = Options()
-options.add_argument("--mute-audio")  # 소리 끄기
-options.binary_location = chrome_path  # chrome.exe 경로 설정
+options.add_argument("--mute-audio")
+options.binary_location = chrome_path
 
-# ChromeDriver로 크롬 실행
 service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service, options=options)
+
 
 # 브라우저로 공룡 게임 페이지 열기
 print("Opening game page...")
