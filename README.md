@@ -178,7 +178,11 @@ YOLOv5 설치:
 1.  게임 화면 캡처
     YOLO 학습용 이미지 데이터를 수집하려면 아래 명령어를 실행하세요:
 
-    python yolo_training/game_screen_capture_and_preprocessing.py
+    ```
+    cd yolo_training
+    
+    python game_screen_capture_and_preprocessing.py
+    ```
 
 > 'game_screen_capture_and_preprocessing.py' 실행 시, 크롬 공룡 게임을 240초 동안 1초마다 캡처합니다. 게임을 직접 플레이하여 데이터 수집할 수 있습니다.
 > 수집한 이미지는 라벨링 도구를 이용해 공룡과 장애물을 직접 라벨링한 후 학습에 사용할 수 있습니다.
@@ -223,6 +227,7 @@ dino-ai-bot/
     YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
 
         cd yolov5
+    
         python train.py --img 640 --batch 16 --epochs 50 --data ../yolo_training/data.yaml --weights yolov5s.pt --project runs/train --name exp --cache
 
 > ⚠️ 주의: 위 명령어로 학습을 수행해야 `yolov5/runs/train/exp4/weights/best.pt` 경로가 생성됩니다.  
@@ -245,6 +250,7 @@ dino-ai-bot/
 ### 3️⃣ 강화학습 실행 (DQN)
 
     cd main
+    
     python main/dino_game_dqn.py
 
 > 💡 주의: `dino_game_dqn.py` 내부에서 상대 경로(`../logs`, `../models` 등)를 사용하므로,  
