@@ -1,18 +1,19 @@
-numpy
-opencv-python
-pyautogui
-pillow
-mss
-selenium
+# For screen capture and automation
+numpy  
+opencv-python  
+pyautogui  
+pillow  
+mss  
+selenium  
 
-torch
-torchvision
+# For deep learning model training and inference
+torch  
+torchvision  
+tensorflow  
 
-tensorflow
-
-matplotlib
-pandas
-seaborn
-scipy
-
-tqdm
+# For data analysis and visualization
+matplotlib  
+pandas  
+seaborn  
+scipy  
+tqdm  
