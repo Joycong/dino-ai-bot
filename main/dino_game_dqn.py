@@ -17,6 +17,12 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 MODEL_DIR = "../models"
 MEMORY_DIR = "../memory"
 LOG_PATH = "../logs/training_log.csv"
+
+# 디렉토리 생성 (없을 경우 자동 생성)
+os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(MEMORY_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+
 GAMMA = 0.99
 EPSILON_DECAY = 0.998
 MIN_EPSILON = 0.01
