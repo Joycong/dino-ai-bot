@@ -22,6 +22,8 @@ class DinoGameEnv:
     def __init__(self):
         # ▶ Chrome 드라이버 경로 설정 (상대 경로 사용)
         chrome_driver_path = os.path.join(project_root, "../yolo_training/chromedriver-win64/chromedriver.exe")
+        # chrome_driver_path = "C:/Users/kovin/DinoProject/dino_env/chromedriver-win64/chromedriver.exe"
+
 
         # ▶ 크롬 실행 파일 경로 (시스템에 따라 변경 필요)
         chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
@@ -46,6 +48,7 @@ class DinoGameEnv:
 
         # ▶ YOLOv5 모델 로드 (장애물, 공룡 인식)
         self.model_path = os.path.join(project_root, "../yolo_training/yolov5/runs/train/exp4/weights/best.pt")
+        # self.model_path = 'C:/Users/kovin/DinoProject/dino_env/yolov5/runs/train/exp4/weights/best.pt'
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=self.model_path)
 
         # ▶ 라벨 인덱스 (학습 시 설정한 값에 맞춰야 함)
@@ -56,6 +59,7 @@ class DinoGameEnv:
 
         # ▶ 게임 오버 이미지 (비교용 템플릿)
         self.game_over_path = os.path.join(project_root, "../data/game_over_image.png")
+        # self.game_over_path = "C:/Users/kovin/DinoProject/data/game_over_image.png"
 
     # 🔁 게임을 초기화하고 첫 번째 상태를 반환
     def reset(self):
@@ -63,6 +67,7 @@ class DinoGameEnv:
         time.sleep(0.1)
         self.current_obstacle = None
         self.last_obstacle_count = 0
+        self.last_action = 0
         time.sleep(0.1)
         return self.get_state()
 
@@ -126,7 +131,6 @@ class DinoGameEnv:
     def get_reward_and_done(self):
         print("\n[보상 함수 시작] --------------------------")
 
-        # ▶ 게임 종료 여부 확인 (게임 오버 이미지와 비교)
         screenshot = self.get_screenshot()
         game_over_img = cv2.imread(self.game_over_path, cv2.IMREAD_GRAYSCALE)
         screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
@@ -137,9 +141,8 @@ class DinoGameEnv:
         if done:
             print("[보상] 게임 종료 감지됨 (game over)")
             print("[보상 함수 종료] ----------------------------")
-            return -10, True  # 패널티 부여
+            return -10, True
 
-        # ▶ 공룡 위치 확인 실패 시 게임 종료
         dino_position = self.get_dino_position()
         if dino_position is None:
             print("[보상] 공룡 감지 실패로 종료")
@@ -148,14 +151,15 @@ class DinoGameEnv:
 
         dino_x = dino_position[0]
         reward = 0
-        threshold = 5  # 장애물이 갱신되었다고 판단할 최소 거리 차이
+        threshold = 5
+        jumped = self.last_action == 1
+        obstacle_cleared = False
 
-        # ▶ 장애물 탐지 및 가장 가까운 장애물 추적
         detected_obstacles = self.detect_obstacles()
         print(f"[보상] 감지된 장애물 수: {len(detected_obstacles)}")
 
         if detected_obstacles:
-            detected_obstacles.sort(key=lambda obs: obs[0])  # X 좌표 기준 정렬
+            detected_obstacles.sort(key=lambda obs: obs[0])
             nearest_obstacle = detected_obstacles[0]
             obs_x1, _, obs_x2, _ = nearest_obstacle
 
@@ -165,10 +169,9 @@ class DinoGameEnv:
                 cur_x1 = self.current_obstacle[0]
 
                 if obs_x1 > cur_x1 + threshold:
-                    reward = 1  # 장애물을 넘었다고 판단
-                    print(f"[보상] 장애물 넘음 감지 (X1 증가), 보상 +1. 이전 X1: {cur_x1}, 새 X1: {obs_x1}")
-                elif obs_x1 < cur_x1:
-                    print(f"[보상] 장애물 갱신됨: X1={obs_x1}, X2={obs_x2}")
+                    obstacle_cleared = True
+                    reward = 10
+                    print(f"[보상] 장애물 넘음 감지 → 보상 +10")
             else:
                 print(f"[보상] 새로운 장애물 설정됨: X1={obs_x1}, X2={obs_x2}")
 
@@ -176,8 +179,17 @@ class DinoGameEnv:
         else:
             print("[보상] 장애물 없음")
 
+        # ⛔ 장애물을 넘지 못한 점프에만 penalty
+        if jumped and not obstacle_cleared:
+            reward = -1
+            print("[보상] 점프 실패 (장애물 못 넘음) → penalty -1")
+
+        print(f"[보상] 최종 보상: {reward}")
         print("[보상 함수 종료] ----------------------------")
         return reward, False
+
+
+
 
     # 🛑 브라우저 종료
     def close(self):

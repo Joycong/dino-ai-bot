@@ -149,7 +149,9 @@ for episode in range(START_EPISODE, START_EPISODE + TOTAL_EPISODES):
 
     while not done:
         action = agent.act(state)
+        env.last_action = action  # 마지막 행동을 env에 기록
         next_state, reward, done = env.step(action)
+
 
         agent.memory.add(state, action, reward, next_state, done)
         agent.replay()
