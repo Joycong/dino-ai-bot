@@ -131,6 +131,7 @@ class DinoGameEnv:
     def get_reward_and_done(self):
         print("\n[보상 함수 시작] --------------------------")
 
+        # ▶ 게임 종료 여부 확인 (게임 오버 이미지와 비교)
         screenshot = self.get_screenshot()
         game_over_img = cv2.imread(self.game_over_path, cv2.IMREAD_GRAYSCALE)
         screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
@@ -141,25 +142,26 @@ class DinoGameEnv:
         if done:
             print("[보상] 게임 종료 감지됨 (game over)")
             print("[보상 함수 종료] ----------------------------")
-            return -10, True
+            return -10, True # 패널티 부여
 
         dino_position = self.get_dino_position()
         if dino_position is None:
             print("[보상] 공룡 감지 실패로 종료")
             print("[보상 함수 종료] ----------------------------")
-            return -10, True
+            return -10, True # 패널티 부여
 
         dino_x = dino_position[0]
         reward = 0
-        threshold = 5
+        threshold = 5 # 장애물이 갱신되었다고 판단할 최소 거리 차이
         jumped = self.last_action == 1
         obstacle_cleared = False
 
+        # ▶ 장애물 탐지 및 가장 가까운 장애물 추적
         detected_obstacles = self.detect_obstacles()
         print(f"[보상] 감지된 장애물 수: {len(detected_obstacles)}")
 
         if detected_obstacles:
-            detected_obstacles.sort(key=lambda obs: obs[0])
+            detected_obstacles.sort(key=lambda obs: obs[0]) # X 좌표 기준 정렬
             nearest_obstacle = detected_obstacles[0]
             obs_x1, _, obs_x2, _ = nearest_obstacle
 
@@ -170,7 +172,7 @@ class DinoGameEnv:
 
                 if obs_x1 > cur_x1 + threshold:
                     obstacle_cleared = True
-                    reward = 10
+                    reward = 10 # 장애물 넘었을 시, 보상
                     print(f"[보상] 장애물 넘음 감지 → 보상 +10")
             else:
                 print(f"[보상] 새로운 장애물 설정됨: X1={obs_x1}, X2={obs_x2}")
