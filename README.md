@@ -24,13 +24,11 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
 ## 💡 주요 기능 요약
 
-- [x] YOLOv5를 통한 공룡/장애물 객체 탐지
-- [x] 게임 화면 실시간 캡처
-- [x] PyAutoGUI로 점프/수그리기 자동 조작
-- [x] DQN 기반 강화학습 수행
-- [x] 보상 기반 학습 및 로그 저장
-
----
+- ☑ YOLOv5를 통한 공룡/장애물 객체 탐지
+- ☑ 게임 화면 실시간 캡처
+- ☑ PyAutoGUI로 점프/수그리기 자동 조작
+- ☑ DQN 기반 강화학습 수행
+- ☑ 보상 기반 학습 및 로그 저장
 
 ---
 
@@ -55,10 +53,15 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
 #### 📈 보상 체계
 
-- 장애물을 넘으면 +1의 보상
-  - 연속으로 장애물을 피할수록 보상이 누적되어 학습 효율이 증가
-- 장애물에 충돌하거나 게임 오버 시 -10의 감점
-  - 에이전트가 충돌을 피하도록 유도함
+> ver 2025.06.04
+
+- 장애물을 **성공적으로 넘었을 경우**: +10점의 큰 보상
+  - 에이전트는 점프 타이밍을 학습하여 정확한 회피 행동을 유도받습니다.
+- 점프를 시도했지만 **장애물을 넘지 못한 경우**: -1점의 패널티
+  - 장애물 유무와 상관없이 점프했는데 넘지 못하면 감점되어 불필요한 점프를 줄이도록 유도됩니다.
+- 게임 오버 시: -10점
+  - 충돌 회피 실패에 대해 강한 부정적 보상을 주어 회피 행동을 강화합니다.
+- 일반적인 상황 (대기 또는 수그리기 등): 보상 없음 (0점)
 
 #### 🛑 게임 오버 감지 방식
 
@@ -71,7 +74,7 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 #### 🎯 탐험률(ε) 감소
 
 - 에이전트는 초기에는 무작위로 행동을 많이 시도하지만,
-- 학습이 진행될수록 **탐험률(ε)**이 점차 감소하여 **더 최적의 행동**을 선택하도록 유도됩니다:
+- 학습이 진행될수록 <strong>탐험률(ε)</strong>이 점차 감소하여 **더 최적의 행동**을 선택하도록 유도됩니다:
 
   - 초기값: 1.0
   - 최소값: 0.01
@@ -117,16 +120,15 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
     dino-ai-bot/
     ├── main/                  # 강화학습 및 실행 코드
-    ├── yolo_training/         # YOLO 학습 관련 코드 및 데이터
+    ├── yolo_training/         # YOLO 객체 학습 관련 코드 및 데이터
     │   ├── images/            # 학습 이미지
     │   ├── labels/            # YOLO 라벨
     │   ├── best.pt            # 학습된 모델
     │   ├── data.yaml          # YOLO 학습 설정
+    │   └── ...
     ├── data/
     │   └── game_over_image.png
     ├── docs/                  # 시연 이미지
-    ├── dino_env/
-    │   └── chromedriver-win64/  # (사용자 직접 설치)
     ├── requirements.txt
     └── README.md
 
@@ -136,9 +138,19 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 
 1. **Chrome 설치**
    - [크롬 설치 링크](https://www.google.com/chrome/)
+
+💡 참고: 본 프로젝트는 크롬 브라우저가 아래 경로에 설치되어 있다고 가정합니다:
+
+```swift
+C:/Program Files/Google/Chrome/Application/chrome.exe
+```
+
+만약 사용자의 시스템에서 크롬이 다른 위치에 설치되어 있다면, 코드에서 chrome_path 값을 수정해야 합니다.
+
 2. **ChromeDriver 설치**
    - 버전에 맞는 [ChromeDriver 다운로드](https://chromedriver.chromium.org/downloads)
-   - `dino_env/chromedriver-win64/`에 `chromedriver.exe` 위치
+   - `yolo_training/chromedriver-win64/`에 `chromedriver.exe` 위치
+     > 폴더가 없다면 수동으로 만들어주세요.
 
 ---
 
@@ -147,13 +159,17 @@ _공룡이 학습을 통해 점차 장애물을 피하는 모습을 보여줍니
 가상환경 생성 (선택):
 
     python -m venv dino_env
-    source dino_env/bin/activate  # or dino_env\Scripts\activate
+    dino_env\Scripts\activate  # or source dino_env/bin/activate
 
 필수 패키지 설치:
 
+    cd dino-ai-bot
+
     pip install -r requirements.txt
 
-YOLOv5 설치 (최초 1회):
+YOLOv5 설치:
+
+    cd yolo_training
 
     git clone https://github.com/ultralytics/yolov5
     pip install -r yolov5/requirements.txt
@@ -164,19 +180,71 @@ YOLOv5 설치 (최초 1회):
 
 ### 1️⃣ YOLO 학습 (선택사항)
 
-YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
+1.  게임 화면 캡처
+    YOLO 학습용 이미지 데이터를 수집하려면 아래 명령어를 실행하세요:
 
-    cd yolov5
-    python train.py --img 640 --batch 16 --epochs 50 --data ../yolo_training/data.yaml --weights yolov5s.pt --project runs/train --name exp --cache
+    ```
+    cd yolo_training
+
+    python game_screen_capture_and_preprocessing.py
+    ```
+
+> 'game_screen_capture_and_preprocessing.py' 실행 시, 크롬 공룡 게임을 240초 동안 1초마다 캡처합니다. 게임을 직접 플레이하여 데이터 수집할 수 있습니다.
+> 수집한 이미지는 라벨링 도구를 이용해 공룡과 장애물을 직접 라벨링한 후 학습에 사용할 수 있습니다.
+
+2. data.yaml 파일 만들기
+   YOLOv5로 공룡과 장애물을 학습하려면, 학습 이미지와 라벨 파일의 경로 및 클래스 정보를 담은 data.yaml 파일이 필요합니다.
+   yolo_training/ 디렉토리에 data.yaml 파일을 만들고 아래처럼 작성하세요:
+
+```
+train: images                                    # 훈련용 이미지 경로
+val: val_images                                  # 검증용 이미지 경로
+
+nc: 2                                            # 클래스 수
+names:
+  0: 'dinosaur'                                  # 클래스 0: 공룡
+  1: 'obstacle'                                  # 클래스 1: 장애물
+```
+
+- train, val: 학습/검증 이미지 경로
+- nc: 클래스 개수
+- names: 인식할 객체의 이름 리스트
+
+>
+
+📌 필수 폴더 구조
+
+이미지와 라벨(.txt)은 다음과 같이 구성되어 있어야 합니다:
+
+```
+dino-ai-bot/
+├── yolo_training/
+│   ├── images/            # 학습 이미지
+│   ├── val_images/        # 검증 이미지
+│   ├── labels/            # 학습 이미지 라벨 (.txt)
+│   ├── val_labels/        # 검증 이미지 라벨 (.txt)
+│   └── data.yaml          # 데이터 설정 파일
+```
+
+> ⚠️ images, val_images 폴더에는 학습용/검증용 이미지가,
+> labels, val_labels 폴더에는 YOLO 형식의 라벨 파일이 위치해야 합니다.
+> 라벨 파일 이름은 이미지와 동일하고 확장자만 .txt여야 합니다.
+
+3.  공룡과 장애물 학습
+    YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 실행하세요:
+
+        cd yolov5
+
+        python train.py --img 640 --batch 16 --epochs 50 --data ../yolo_training/data.yaml --weights yolov5s.pt --project runs/train --name exp --cache
 
 > ⚠️ 주의: 위 명령어로 학습을 수행해야 `yolov5/runs/train/exp4/weights/best.pt` 경로가 생성됩니다.  
 > 만약 학습을 생략하고 결과만 확인하고 싶다면, **제공된 `best.pt` 파일을 수동으로 아래 경로에 넣어주세요**:
 
     yolov5/runs/train/exp4/weights/best.pt
 
-> 폴더가 없다면 수동으로 만들어주세요.
-
 ---
+
+> 참고 : 1️⃣을 건너뛰었다면 제공된 `best.pt` 파일을 꼭 수동으로 경로에 넣어 주어야 합니다.
 
 ### 2️⃣ YOLO 탐지 결과 확인
 
@@ -191,10 +259,10 @@ YOLOv5를 사용해 공룡과 장애물을 학습하려면 아래 명령어를 �
 ### 3️⃣ 강화학습 실행 (DQN)
 
     cd main
-    python main/dino_game_dqn.py
 
-> 💡 주의: `dino_game_dqn.py` 내부에서 상대 경로(`../logs`, `../models` 등)를 사용하므로,  
-> **`main/` 폴더 안에서 실행해야** 에러 없이 작동합니다.
+    python dino_game_dqn.py
+
+> 💡 최초 실행 시 models, memory, logs 폴더들은 자동 생성되도록 코드가 구성되어 있으나, 수동으로 만들어도 무방합니다.
 
 > 💾 학습이 진행되면 다음과 같은 파일이 자동으로 저장됩니다:
 >

@@ -13,6 +13,12 @@ import csv
 MODEL_DIR = "../models"
 MEMORY_DIR = "../memory"
 LOG_PATH = "../logs/training_log.csv"
+
+# 디렉토리 생성 (없을 경우 자동 생성)
+os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(MEMORY_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+
 GAMMA = 0.99
 EPSILON_DECAY = 0.98
 MIN_EPSILON = 0.01
@@ -155,8 +161,9 @@ for episode in range(START_EPISODE, START_EPISODE + TOTAL_EPISODES):
 
     while not done:
         action = agent.act(state)
-        env.last_action = action
+        env.last_action = action  # 마지막 행동을 env에 기록
         next_state, reward, done = env.step(action)
+
 
         agent.memory.add(state, action, reward, next_state, done)
 

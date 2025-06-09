@@ -52,7 +52,9 @@ class DinoGameEnv:
         self.obstacle_label = 1
 
         self.current_obstacle = None
+
         self.last_action = 0
+
 
     # 🔁 게임을 초기화하고 첫 번째 상태를 반환
     def reset(self):
@@ -137,7 +139,9 @@ class DinoGameEnv:
 
         dino_x = dino_pos[0]
         reward = 0
-        threshold = 5  # 장애물이 갱신되었다고 판단할 최소 거리 차이
+        threshold = 5 # 장애물이 갱신되었다고 판단할 최소 거리 차이
+        jumped = self.last_action == 1
+        obstacle_cleared = False
 
         # ▶ 장애물 탐지 및 가장 가까운 장애물 추적
         obstacles = self.detect_obstacles()
@@ -154,6 +158,7 @@ class DinoGameEnv:
 
             print(f"[디버깅] 현재 장애물 X2: {obs_x2}, 공룡 X: {dino_x}")
 
+
             if self.current_obstacle:
                 prev_x1 = self.current_obstacle[0]
                 if obs_x1 > prev_x1 + threshold:
@@ -162,6 +167,7 @@ class DinoGameEnv:
                     print(f"[보상] 장애물 넘음 감지 (X1 증가), 보상 +10")
                 elif obs_x1 < prev_x1:
                     print(f"[보상] 장애물 갱신됨: X1={obs_x1}, X2={obs_x2}")
+
             else:
                 print(f"[보상] 최초 장애물 설정됨: X1={obs_x1}, X2={obs_x2}")
 
@@ -173,8 +179,12 @@ class DinoGameEnv:
             reward = -1
             print("[보상] 점프 실패 → -1")
 
+
         print("[보상 함수 종료] ----------------------------")
         return reward, False
+
+
+
 
     # 🛑 브라우저 종료
     def close(self):
